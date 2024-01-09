@@ -9,6 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "buffer": "^6.0.3",
+    "docx-preview": "^0.3.0",
+    "file-type": "^16.5.4",
     "vue": "^3.3.11"
   },
   "devDependencies": {

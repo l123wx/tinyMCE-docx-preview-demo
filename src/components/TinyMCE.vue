@@ -12,8 +12,17 @@
     </div>
 </template>
 
+<script lang="ts">
+    import { Buffer } from 'buffer'
+    // 添加 Buffer 全局变量
+    // @ts-ignore
+    window.Buffer = window.Buffer || Buffer
+</script>
+
 <script setup lang="ts">
     import { ref, onMounted, watch } from 'vue'
+    import * as Docx from 'docx-preview'
+    import { fromBuffer } from 'file-type/core'
     import { RawEditorOptions, Editor } from '../../public/tinyMCE/tinymce'
     import useTinyMCE from '../hooks/useTinyMCE'
 
@@ -39,6 +48,24 @@
         base_url: BASE_URL,
         suffix: '.min',
         toolbar: 'importWord',
+        images_upload_handler: blobInfo => {
+            return new Promise(async () => {
+                let file = blobInfo.blob()
+
+                if (isUnknownTypeBlob(blobInfo.blobUri())) {
+                    const blob = blobInfo.blob()
+                    const blobType = await fromBuffer(await blob.arrayBuffer())
+                    file = new File(
+                        [blob],
+                        `${Date.now()}.${blobType?.ext || 'blob'}`
+                    )
+                }
+
+                console.log(file)
+
+                // uploadImage
+            })
+        },
         init_instance_callback: tinyMCEEditor => {
             tinyMCEEditor.setContent(props.modelValue || '', {
                 format: 'html'
@@ -68,7 +95,9 @@
         }
     }
 
-    const handleWordFileUpload = () => {}
+    const isUnknownTypeBlob = (blobUri: string) => {
+        return blobUri.startsWith('blob')
+    }
 
     const getContent = () => {
         return (
@@ -76,6 +105,41 @@
                 format: 'html'
             }) || ''
         )
+    }
+
+    // docx-preview 没有提供直接返回 html 的方法，所以用创建 dom 接收 html 的方法“曲线救国”
+    const renderHtmlAsync = async (wordFile: File) => {
+        const importWordUploadContainerDom = document.createElement('div')
+
+        await Docx.renderAsync(
+            wordFile,
+            importWordUploadContainerDom,
+            undefined,
+            {
+                // 取消宽高限制，不然会固定一个页面大小，展示效果不好
+                ignoreHeight: true,
+                ignoreWidth: true
+            }
+        )
+
+        // @ts-ignore
+        importWordUploadContainerDom.querySelector('.docx').style.padding = 0
+        const wordHtmlContent = importWordUploadContainerDom.innerHTML
+
+        return wordHtmlContent
+    }
+
+    const handleWordFileUpload = async (e: Event) => {
+        const wordFile = (e.target as HTMLInputElement).files?.[0]
+        if (!wordFile) return
+
+        // 将上传文件的 input value 置空，否则会出现第二次上传相同文件的时候不回调的问题
+        importWordUploadRef.value.value = null
+
+        const wordHtmlContent = await renderHtmlAsync(wordFile)
+
+        // 将导入的 word 内容追加到富文本内容中
+        tinyMCEEditor.setContent(tinyMCEEditor.getContent() + wordHtmlContent)
     }
 
     watch(
