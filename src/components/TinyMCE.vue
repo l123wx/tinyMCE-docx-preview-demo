@@ -48,6 +48,10 @@
         base_url: BASE_URL,
         suffix: '.min',
         toolbar: 'importWord',
+        // 允许添加 style 标签
+        valid_children: '+body[style]',
+        // 防止 tinyMCE 移除没有属性的 span 标签，保留所有标签的 style 属性
+        extended_valid_elements: 'span|*[style]',
         images_upload_handler: blobInfo => {
             return new Promise(async () => {
                 let file = blobInfo.blob()
@@ -63,7 +67,13 @@
 
                 console.log(file)
 
-                // uploadImage
+                // 上传文件 uploadImage
+                // resolve(result.url)
+
+                // 主动触发 input 事件，图片地址替换之后不会主动触发 input 事件
+                setTimeout(() => {
+                    tinyMCEEditor.fire('input')
+                })
             })
         },
         init_instance_callback: tinyMCEEditor => {
@@ -122,11 +132,20 @@
             }
         )
 
-        // @ts-ignore
-        importWordUploadContainerDom.querySelector('.docx').style.padding = 0
-        const wordHtmlContent = importWordUploadContainerDom.innerHTML
+        // 获取 style 标签
+        const wordStyleContent = Array.from(
+            importWordUploadContainerDom.querySelectorAll('style')
+        )
+            .map(dom => dom.outerHTML)
+            .join('')
+        // 去除 word 的纸页容器
+        const wordHtmlContent = Array.from(
+            importWordUploadContainerDom.querySelectorAll('section.docx')
+        )
+            .map(dom => dom.innerHTML)
+            .join('')
 
-        return wordHtmlContent
+        return wordStyleContent + wordHtmlContent
     }
 
     const handleWordFileUpload = async (e: Event) => {
