@@ -25,13 +25,14 @@
     import { fromBuffer } from 'file-type/core'
     import { RawEditorOptions, Editor } from '../../public/tinyMCE/tinymce'
     import useTinyMCE from '../hooks/useTinyMCE'
+    import tinyMCEReSourcePath from '/tinyMCE?url'
 
     const emits = defineEmits(['update:modelValue'])
     const props = defineProps<{
         modelValue: string
     }>()
 
-    const BASE_URL = '/tinyMCE'
+    const BASE_URL = tinyMCEReSourcePath
     const TINY_MCE_ID = 'editor_' + Date.now()
 
     const { init: initTinyMCE } = useTinyMCE()

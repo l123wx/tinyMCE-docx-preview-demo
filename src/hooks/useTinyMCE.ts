@@ -1,4 +1,5 @@
 import { RawEditorOptions, Editor } from '../../public/tinyMCE/tinymce'
+import tinyMCEResourcePath from '/tinyMCE/tinymce.min.js?url'
 
 let isScriptLoading = false
 const initMethodList: Array<() => Promise<void>> = []
@@ -22,7 +23,7 @@ const useTinyMCE = () => {
             if (isBeforeTinyMCEInit()) {
                 isScriptLoading = true
                 const script = document.createElement('script')
-                script.src = '/tinyMCE/tinymce.min.js'
+                script.src = tinyMCEResourcePath
                 script.onload = async () => {
                     isScriptLoading = false
                     while (initMethodList.length) {
