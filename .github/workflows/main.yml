@@ -1,0 +1,48 @@
+name: CI/CD
+
+on:
+  push:
+    branches: 
+      - master
+
+env:
+  TZ: Asia/Shanghai
+
+jobs:
+  blog-cicd:
+    name: build & deploy
+    runs-on: ubuntu-latest # 使用最新的 Ubuntu 系统作为编译部署的环境
+
+    steps:
+    - name: Checkout codes
+      uses: actions/checkout@v2
+
+    - name: Setup node
+      # 设置 node.js 环境
+      uses: actions/setup-node@v1
+      with:
+        node-version: '18.x'
+
+    - name: Cache node modules
+      # 设置包缓存目录，避免每次下载
+      uses: actions/cache@v1
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+
+    - name: Install dependencies
+      # 下载 hexo-cli 脚手架及相关安装包
+      run: |
+        npm install
+        npm run build
+
+    - name: Deploy
+      env: 
+        # Github 仓库
+        GITHUB_REPO: github.com/l123wx/tinyMCE-docx-preview-demo
+      run: |
+        cd ./dist && git init && git add .
+        git config user.email "1219585136@qq.com"
+        git add .
+        git commit -m "GitHub Actions Auto Builder at $(date +'%Y-%m-%d %H:%M:%S')"
+        git push --force --quiet "https://${{ secrets.ACCESS_TOKEN }}@$GITHUB_REPO" master:website
