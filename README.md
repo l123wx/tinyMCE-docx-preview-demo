@@ -18,4 +18,4 @@ yarn dev
 
 ## 相关文章
 
-[TinyMCE word 文档导入 — Elvis's blogs](https://l123wx.buzz/tinymce-word-import/)
+[TinyMCE word 文档导入 — Elvis's blogs](https://l123wx.site/tinymce-word-import/)
