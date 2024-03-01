@@ -16,6 +16,5 @@ yarn
 yarn dev
 ```
 
-## 相关文章
 
-[TinyMCE word 文档导入 — Elvis's blogs](https://l123wx.site/tinymce-word-import/)
+详情查看文章：[TinyMCE word 文档导入 — Elvis's blogs](https://l123wx.github.io/blogs/?redirect=/tinymce-word-import/)
