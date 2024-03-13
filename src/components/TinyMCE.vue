@@ -25,14 +25,12 @@
     import { fromBuffer } from 'file-type/core'
     import { RawEditorOptions, Editor } from '../../public/tinyMCE/tinymce'
     import useTinyMCE from '../hooks/useTinyMCE'
-    import tinyMCEReSourcePath from '/tinyMCE?url'
 
     const emits = defineEmits(['update:modelValue'])
     const props = defineProps<{
         modelValue: string
     }>()
 
-    const BASE_URL = tinyMCEReSourcePath
     const TINY_MCE_ID = 'editor_' + Date.now()
 
     const { init: initTinyMCE } = useTinyMCE()
@@ -44,10 +42,6 @@
 
     const initOptions: RawEditorOptions = {
         selector: '#' + TINY_MCE_ID,
-        language_url: BASE_URL + '/langs/zh-Hans.js',
-        language: 'zh-Hans',
-        base_url: BASE_URL,
-        suffix: '.min',
         toolbar: 'importWord',
         // 允许添加 style 标签
         valid_children: '+body[style]',
